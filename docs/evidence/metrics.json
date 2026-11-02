@@ -1,0 +1,14 @@
+{
+  "measuredAt": "2026-11-02T18:32:49.024Z",
+  "environment": "local development preview; warm sequential HTTP requests; no throttling",
+  "baseURL": "http://127.0.0.1:4173",
+  "node": "v22.23.1",
+  "requests": 30,
+  "apiMedianMs": 45.88,
+  "apiP95Ms": 65.08,
+  "jsBytes": 474565,
+  "jsGzipBytes": 139844,
+  "cssBytes": 27390,
+  "cssGzipBytes": 6282,
+  "assetMethod": "Sum of all emitted JS/CSS files; each independently gzip-compressed. Not a measured browser transfer or a before/after comparison."
+}

@@ -1,133 +1,98 @@
-# vinext-starter
+# Cynbit Project Blueprint
 
-A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
+A focused improvement to Cynbit's discovery journey: turn a business goal into an explainable service recommendation and a useful project brief before asking for personal information.
 
-## Prerequisites
+**Demo:** deployment URL will be recorded after verification.  
+**Technical report:** [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md)
 
-- Node.js `>=22.13.0`
-- Portable: Windows, macOS, or Linux; no Bash required
-- Managed Linux: managed Linux runtime with Bash, `flock`, `curl`, `sha256sum`, and GNU `timeout`
-- Git and `tar` (including Windows `tar.exe`) are required for publishing; portable publication does not require Bash
+## Run locally
 
-## Sites Lifecycle
+Use Node.js **22.13+** (tested with 22.23.1), npm, and Git. No API keys, account, database, or environment file is required.
 
-The Sites initializer copies the shared starter and selects managed-linux only when `SITES_MANAGED_LINUX_CONTAINER=1`; otherwise it selects portable. It saves the selection only in ignored `.sites-runtime/execution-profile.json`. Both profiles copy/configure first, then use the plugin's separate `install-dependencies.mjs` step to measure installation independently. Edit source under `app/` and follow the Sites skill for installation, preview, builds, and publishing.
+```sh
+npm ci
+npm run dev -- --port 4173
+```
 
-Run `node <plugin-root>/scripts/configure-execution-profile.mjs` only when the profile is unknown for the current checkout and environment. Profile changes do not alter tracked source or require reinstalling otherwise-valid dependencies; restart an existing preview to use the new selection. Do not commit or upload `.sites-runtime/`.
+Open the local URL printed by the server (normally `http://127.0.0.1:4173`). Port 4173 avoids a reserved port range on the assessment Windows machine. The first development request compiles the application.
 
-This starter does not use `wrangler.jsonc`.
+For a production build and local Worker preview:
 
-Publish archives outside the source checkout or under its ignored `outputs/` directory. Local `.env*`, `.dev.vars*`, TypeScript build state, and tool runtime directories are ignored; keep the hosting manifest, migrations, and authored scripts in source control.
+```sh
+npm run build
+npm start -- --port 4173
+```
 
-`install:ci` runs `npm ci` once against the shared lockfile, disables parent-workspace discovery, and includes required dev/optional dependencies despite production/omit settings. Sharp defaults to prebuilt binaries unless explicitly configured otherwise. Do not overlap installers.
+Stop the development server before starting the production preview on the same port.
 
-- **Portable:** Preserve host HOME, npm cache, registry, proxy, temporary paths, retry/concurrency settings, and lifecycle-script policy. Use `--prefer-offline --no-audit --no-fund`.
-- **Managed Linux:** Use the existing project-local HOME/cache/tmp setup and Linux install lock, tarball preflight, and timeout. Restore the image-seeded npm cache only when its lockfile hash matches; retain network fallback. Builds keep their existing timeout. These helpers are not invoked by the portable profile.
+## Verify
 
-`scripts/sites-env.mjs` preserves the caller's HOME, npm cache, proxy, XDG, and temporary-directory configuration while defaulting Wrangler and Miniflare state to the checkout. If npm reports an unwritable cache, select a writable path with `npm_config_cache` for that install. The `dev` and `start` scripts also keep Wrangler logs inside the checkout. Generated `.sites-runtime/` and `.wrangler/` directories are disposable and ignored by Git.
+```sh
+npm run typecheck
+npm test
+npx playwright install chromium
+npm run test:e2e
+```
 
-On portable, `npm run dev` uses `vinext dev` with HMR, starting at port 5173. Vinext records the running server in ignored `.vinext/` state, rejects an ordinary duplicate launch, and recovers stale state after a stopped process; exactly simultaneous starts can race. Pass `--port <port>` or `--hostname <host>` after `npm run dev --` when needed; keep portable previews on loopback.
+The browser suite starts a preview automatically. With an existing server, it reuses port 4173. Set `TEST_BASE_URL` to test a different running origin. To use an already installed Chrome on Windows, set `$env:PLAYWRIGHT_CHANNEL='chrome'` before the browser command. CI installs Chromium and tests the production build.
 
-For managed Linux browser QA, follow the Sites skill's managed preview reference. The daemon runs the project's Vite dev script with `--host 0.0.0.0 --port 4173 --strictPort`; use the CLI's returned URL. The ignored local profile survives the daemon's cleared environment.
+`npm run format` formats authored application files. Test output is written to ignored `test-results/`. Tests cover all service paths, validation boundaries, API errors, draft recovery, keyboard controls, failure/retry, downloaded content, XSS escaping, responsive overflow, and automated accessibility checks.
 
-The portable profile simulates ChatGPT sign-in only for loopback development requests. Visit `/signin-with-chatgpt?return_to=/` to sign in as `local_seedy` (`seedy@sites.test`, display name `Seedy`) and `/signout-with-chatgpt?return_to=/` to sign out. The development cookie preserves that identity across server restarts. Mock auth is disabled in the managed-linux profile and is not included in production builds; hosted authentication remains dispatch-owned.
+## Try the improvement
 
-The Worker uses `vinext/server/fetch-handler`, including Vinext's config-aware image handling. After building, `npm start` runs that Worker locally through Wrangler on `127.0.0.1`, sharing `.wrangler/state` with dev preview and local D1 migrations; it does not deploy the site or simulate sign-in. Use the URL printed by the server. Pass `npm start -- --port <port>` to select a different built-preview port.
+1. Choose **Automate my operations**.
+2. Select **An existing product or process**, **Lead follow-up**, and **Connect existing tools**.
+3. Keep an open budget and flexible timing. Create the blueprint.
+4. Review the recommendation and discovery questions; download, copy, or print the brief.
+5. Edit the answers, try a broad scope with a one-month deadline, and observe the phased-scope guidance.
 
-Local previews use Miniflare's placeholder `Request.cf` metadata without a network lookup. Set `CLOUDFLARE_CF_FETCH_ENABLED=true` to opt into fetching preview metadata; this setting does not change hosted request metadata.
+The email link opens a draft in the visitor's own mail app. It does not send email, book a call, create a CRM lead, or claim that Cynbit received an inquiry. Use Copy or Download if a mail app is unavailable.
 
-Local tool usage metrics are disabled by default. Set `WRANGLER_SEND_METRICS=true` to opt in.
+## Architecture
 
-## Included Shape
+| Layer | Location | Responsibility |
+| --- | --- | --- |
+| Presentation | `app/page.tsx`, `app/globals.css`, `components/` | Responsive, accessible discovery and result views |
+| Interaction state | `hooks/use-discovery.ts` | Step transitions, focus, request lifecycle, download and print |
+| Draft persistence | `lib/draft.ts` | Versioned, validated, expiring browser draft |
+| Domain contract | `lib/blueprint.ts` | Service catalog, input/output schemas, explainable rules, text serializer |
+| HTTP boundary | `app/api/blueprint/route.ts` | Same-origin checks, bounded streaming body, server validation, no-store response |
+| Hosting adapter | `worker/`, `scripts/vite/`, `.openai/hosting.json` | Maintained Sites/Vinext Worker integration |
 
-- edit site code under `app/`
-- `app/chatgpt-auth.ts` provides optional dispatch-owned ChatGPT sign-in helpers
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `worker/index.ts` is the production Worker entrypoint and preserves request-scoped connector bindings
-- `scripts/vite/` contains the maintained Vite integrations and the vendored Sites plugin license
-- `scripts/connector-preview/` contains the local connector preview Worker and session helpers
-- the remaining `scripts/` files select execution profiles and run installation, development, and builds; the plugin's helpers orchestrate the Sites lifecycle
-- `dist/` contains generated deployment output; `.vinext/`, `.wrangler/`, and `.sites-runtime/` contain ignored local tool state
-- `db/index.ts` reads the D1 binding from the Cloudflare Worker environment
-- `db/schema.ts` starts intentionally empty
-- `@cloudflare/workers-types` provides Worker types; `cloudflare-env.d.ts` declares optional `DB`/`BUCKET` bindings—update these declarations if binding names change
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+React 19 + TypeScript use Next.js App Router conventions through Vinext/Vite for the supplied Cloudflare Workers hosting environment. The UI uses native controls and authored CSS, without a component-library dependency. The domain functions are framework-independent. No database or LLM service is needed for this deterministic workflow.
 
-## Workspace Auth Headers
+### API
 
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
+`POST /api/blueprint` with `Content-Type: application/json`:
 
-The user ID is stable for the same user on the same Site and different across Sites. Use it as the durable user key; use email and name for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive `oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty `name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by `oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
+```json
+{
+  "goal": "automate",
+  "stage": "existing",
+  "features": ["leads", "integration"],
+  "context": "Route qualified leads into our CRM.",
+  "budget": "discuss",
+  "timing": "flexible"
 }
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Returns `{ "blueprint": { ... } }`. See the exported Zod schemas for the complete contract. Errors: `400` malformed/missing JSON; `403` mismatched browser origin; `413` body above 8 KiB; `415` unsupported content type; `422` invalid fields. Requests are never written to a database or logged by application code. The origin check is a browser boundary, not authentication or bot protection.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs optional or required ChatGPT sign-in:
+## GitHub handoff and deployment
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use the returned `userId` as the stable user key for user-owned records; do not use email as a durable identifier.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send anonymous visitors through Sign in with ChatGPT.
-- In a Server Component, start sign-in with `<a href={chatGPTSignInPath(returnTo)} target="_top">`. The auth helper module is server-only; do not import it into a Client Component.
-- Do not use `fetch`, XHR, a client-side router, or a framework link that can prefetch the sign-in route. SIWC must start as a top-level navigation.
-- Never request the AuthAPI authorization endpoint directly. The dispatch-owned `/signin-with-chatgpt` route must start the SIWC flow.
-- Use `chatGPTSignOutPath(returnTo)` for browser sign-out links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because they depend on per-request identity headers.
+The source repository has incremental commits. The accompanying `.bundle` preserves full Git history; `git clone cynbit-blueprint.bundle cynbit-blueprint` restores it. The ZIP contains source without dependencies or local runtime state.
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the OAuth cookies, and identity header injection. Do not implement app routes for those reserved paths. Routes that do not import and call the helper remain anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the Sites hosting platform's access policy controls for workspace-wide restrictions, or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Local D1 migrations
-
-For a D1-backed local preview, generate SQL with `npm run db:generate`. Build once through the Sites skill's build entrypoint (or `npm run build` for standalone use) to generate `dist/server/wrangler.json`, rebuilding if bindings change. From the project root, apply each pending migration in order:
+Create an empty GitHub repository, then run from this repository:
 
 ```sh
-node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_example.sql
+git remote add origin https://github.com/YOUR_ACCOUNT/cynbit-project-blueprint.git
+git push -u origin main
 ```
 
-Replace the filename with the pending migration and `DB` with your D1 binding name if different. Use `.wrangler/state`, not `.wrangler/state/v3`; Wrangler adds the versioned directories. Do not replay migrations already applied locally. This updates only the preview database; publishing applies production migrations separately.
+No GitHub credentials are included. GitHub Actions verifies changes but never publishes automatically. The live assessment demo is hosted through Sites. Its exact identity is tracked in `.openai/hosting.json`; preserve it when updating this demo. For a separate deployment, register a new Site and use its returned identity rather than copying this one. Build output lives in ignored `dist/`.
 
-## Diagnostic Commands
+## Scope and production integration
 
-- `npm run install:ci`: perform the one locked dependency install
-- `npm run dev`: start the Vite/Vinext development server
-- `npm run build`: build the deployable Sites artifact
-- `npm run start`: preview the built Worker locally with D1/R2 support
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+This is an independent assessment prototype, not Cynbit's production website. Replace or supplement the current contact-page form with this journey; preserve a direct-contact option. Have Cynbit approve service rules and copy, then connect an authenticated inquiry endpoint/CRM only after consent, spam controls, retention rules, and operational ownership are defined. A/B testing is needed before claiming conversion uplift.
 
-When using the Sites plugin, follow its skill instructions for installation, builds, and publishing. These npm commands remain available for standalone use.
-
-The portable build runs Vinext directly without a host `timeout` command. The managed-linux build uses `scripts/build-verified.sh` and its existing `SITES_BUILD_TIMEOUT` setting.
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+Drafts are local to one browser and expire after seven days of inactivity when reopened; Clear draft removes them immediately. Avoid confidential information on shared devices. No cookies or analytics SDK are added. See [asset provenance](docs/ASSETS.md), [audit evidence](docs/AUDIT.md), and [technical report](docs/TECHNICAL_REPORT.md).

@@ -1,0 +1,41 @@
+{
+  "url": "https://www.cynbit.in/contact",
+  "capturedAt": "2026-11-02T18:32:30.089Z",
+  "fields": [
+    {
+      "name": "fullName",
+      "required": true,
+      "labels": 0,
+      "ariaLabel": null,
+      "ariaLabelledby": null
+    },
+    {
+      "name": "email",
+      "required": true,
+      "labels": 0,
+      "ariaLabel": null,
+      "ariaLabelledby": null
+    },
+    {
+      "name": "company",
+      "required": false,
+      "labels": 0,
+      "ariaLabel": null,
+      "ariaLabelledby": null
+    },
+    {
+      "name": "industry",
+      "required": false,
+      "labels": 0,
+      "ariaLabel": null,
+      "ariaLabelledby": null
+    },
+    {
+      "name": "message",
+      "required": true,
+      "labels": 0,
+      "ariaLabel": null,
+      "ariaLabelledby": null
+    }
+  ]
+}

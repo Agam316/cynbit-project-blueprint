@@ -1,0 +1,123 @@
+{
+  "environment": "Windows; local Chrome; development preview",
+  "browser": {
+    "startTime": "2026-11-02T18:30:23.621Z",
+    "duration": 52646.092000000004,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "name": "degraded browser storage does not block the workflow",
+      "status": "expected",
+      "durationMs": 3357,
+      "attempts": 1
+    },
+    {
+      "name": "malformed successful responses are recoverable errors",
+      "status": "expected",
+      "durationMs": 3241,
+      "attempts": 1
+    },
+    {
+      "name": "print view includes scope, constraints, and unsent status",
+      "status": "expected",
+      "durationMs": 3207,
+      "attempts": 1
+    },
+    {
+      "name": "guards progression, retains selections, and moves keyboard focus",
+      "status": "expected",
+      "durationMs": 2830,
+      "attempts": 1
+    },
+    {
+      "name": "recovers a draft after refresh and clears stale features after changing goal",
+      "status": "expected",
+      "durationMs": 4563,
+      "attempts": 1
+    },
+    {
+      "name": "generates a real response and a complete downloadable brief",
+      "status": "expected",
+      "durationMs": 3733,
+      "attempts": 1
+    },
+    {
+      "name": "server failure keeps input and supports successful retry",
+      "status": "expected",
+      "durationMs": 2679,
+      "attempts": 1
+    },
+    {
+      "name": "clear draft requires confirmation and removes local data",
+      "status": "expected",
+      "durationMs": 2579,
+      "attempts": 1
+    },
+    {
+      "name": "untrusted context renders as text, never executable HTML",
+      "status": "expected",
+      "durationMs": 2650,
+      "attempts": 1
+    },
+    {
+      "name": "keyboard-only selection and native dialog focus work",
+      "status": "expected",
+      "durationMs": 2225,
+      "attempts": 1
+    },
+    {
+      "name": "responsive layout at 320px has no horizontal overflow",
+      "status": "expected",
+      "durationMs": 2636,
+      "attempts": 1
+    },
+    {
+      "name": "responsive layout at 390px has no horizontal overflow",
+      "status": "expected",
+      "durationMs": 3007,
+      "attempts": 1
+    },
+    {
+      "name": "responsive layout at 768px has no horizontal overflow",
+      "status": "expected",
+      "durationMs": 2574,
+      "attempts": 1
+    },
+    {
+      "name": "responsive layout at 1440px has no horizontal overflow",
+      "status": "expected",
+      "durationMs": 2511,
+      "attempts": 1
+    },
+    {
+      "name": "WCAG automated checks pass on every step and result",
+      "status": "expected",
+      "durationMs": 7315,
+      "attempts": 1
+    }
+  ],
+  "domainApi": {
+    "passed": 17,
+    "failed": 0,
+    "command": "npm test"
+  },
+  "accessibility": {
+    "violations": 0,
+    "views": 4,
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21aa"
+    ]
+  },
+  "responsiveWidths": [
+    320,
+    390,
+    768,
+    1440
+  ]
+}
