@@ -3,7 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Project Blueprint | Cynbit Technologies — Assessment Prototype",
-  description: "Turn your business goal into a practical project brief. Explore a service path, define your scope, and prepare for a focused discovery conversation.",
+  description:
+    "Turn your business goal into a practical project brief. Explore a service path, define your scope, and prepare for a focused discovery conversation.",
   robots: { index: false, follow: false },
   icons: {
     icon: "/brand/cynbit.svg",
