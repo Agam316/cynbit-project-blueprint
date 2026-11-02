@@ -1,106 +1,82 @@
-const sidebarWidths = [74, 58, 82, 66, 71, 54];
-const articleWidths = [100, 97, 94, 98, 86];
+'use client';
+import { useEffect, useRef, useState } from 'react';
+import { budgets, formatBrief, goals, scopes, stages, timings, type Blueprint, type Goal } from '@/lib/blueprint';
+import { Icon } from '@/components/icon';
 
+type Draft = { goal: Goal | ''; stage: string; features: string[]; context: string; budget: string; timing: string };
+const empty: Draft = {goal:'',stage:'',features:[],context:'',budget:'discuss',timing:'flexible'};
+const storageKey = 'cynbit-blueprint-draft-v1';
+const stepNames = ['Your goal','The scope','Your priorities'];
+function safeDraft(raw: string): Draft | null {
+  try {
+    const value=JSON.parse(raw), d=value.draft;
+    if(value.version!==1 || !Number.isFinite(value.savedAt) || Date.now()-value.savedAt>604800000) return null;
+    if(!d || !goals.some(g=>g.id===d.goal) || typeof d.context!=='string' || d.context.length>600) return null;
+    return {goal:d.goal,stage:stages.some(s=>s.id===d.stage)?d.stage:'',features:Array.isArray(d.features)?[...new Set<string>(d.features)].filter(id=>scopes[d.goal as Goal].some(f=>f.id===id)):[],context:d.context,budget:budgets.some(b=>b.id===d.budget)?d.budget:'discuss',timing:timings.some(t=>t.id===d.timing)?d.timing:'flexible'};
+  } catch {return null;}
+}
+function BlueprintDrawing() {
+  return <svg className="blueprint-drawing" viewBox="0 0 340 170" fill="none" aria-hidden="true"><defs><pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0v22" stroke="currentColor" strokeOpacity=".09"/></pattern></defs><rect width="340" height="170" fill="url(#grid)"/><g stroke="currentColor"><path opacity=".3" d="m29 113 133-77 143 78-133 77zM45 122l132-77m-88 102 132-78m-87 103 132-78"/><path d="m112 97 63-36 64 36-64 37z" fill="#006067"/><path d="M112 97v-30l63-36 64 36v30m-64 7V74m-63-7 63 37 64-37" opacity=".6"/><path d="m144 77 31-18 33 18-33 19z" fill="#7ad5dd" fillOpacity=".15"/><path d="M144 77V49l31-18 33 18v28m-33 19V68m-31-19 31 19 33-19"/><path d="M77 88v43l34 20m159-63v43l-31 18M175 7v14M89 53l-11-7m183 7 11-7" strokeDasharray="3 4" opacity=".5"/></g><circle cx="175" cy="7" r="3" fill="#ffddb3"/><circle cx="77" cy="88" r="3" fill="#96f1fa"/><circle cx="270" cy="88" r="3" fill="#96f1fa"/><text x="20" y="22" fill="currentColor" opacity=".5" fontSize="8" fontFamily="monospace">IDEA → ARCHITECTURE</text><text x="250" y="158" fill="currentColor" opacity=".5" fontSize="8" fontFamily="monospace">FIG. 01</text></svg>;
+}
 export default function Home() {
-  return (
-    <main className="fixed inset-0 overflow-hidden bg-[#fbfaf8] text-zinc-900">
-      <header
-        aria-hidden="true"
-        className="grid h-[76px] grid-cols-[1fr_auto_1fr] items-center border-b border-stone-200 bg-white/95 px-6 sm:px-14"
-      >
-        <div className="flex items-center gap-3">
-          <span className="h-9 w-9 rounded-full bg-stone-100" />
-          <span className="h-3.5 w-28 rounded-full bg-stone-100" />
-        </div>
-        <span className="hidden h-9 w-[min(30vw,420px)] rounded-xl bg-stone-100 sm:block" />
-        <div className="flex items-center justify-end gap-3">
-          <span className="hidden h-9 w-9 rounded-full bg-stone-100 sm:block" />
-          <span className="h-9 w-24 rounded-xl bg-stone-100" />
-        </div>
-      </header>
-
-      <div
-        aria-hidden="true"
-        className="grid h-[calc(100%-76px)] grid-cols-[180px_minmax(0,1fr)_260px] gap-10 px-6 pb-24 pt-10 opacity-55 max-lg:grid-cols-[150px_minmax(0,1fr)] max-sm:grid-cols-1 sm:px-14"
-      >
-        <aside className="hidden border-r border-stone-200 pr-7 sm:block">
-          <div className="mb-6 h-2.5 w-16 rounded-full bg-stone-200" />
-          <div className="space-y-4">
-            {sidebarWidths.map((width) => (
-              <div key={width} className="flex items-center gap-3">
-                <span className="h-4 w-4 rounded bg-stone-200" />
-                <span
-                  className="h-2.5 rounded-full bg-stone-200"
-                  style={{ width: `${width}%` }}
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mb-6 mt-9 h-2.5 w-24 rounded-full bg-stone-200" />
-          <div className="space-y-4">
-            {sidebarWidths.slice(0, 3).map((width) => (
-              <span
-                key={width}
-                className="block h-2.5 rounded-full bg-stone-200"
-                style={{ width: `${width}%` }}
-              />
-            ))}
-          </div>
-        </aside>
-
-        <article className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-          <div className="space-y-3">
-            <div className="h-2.5 w-28 rounded-full bg-stone-200" />
-            <div className="h-7 w-4/5 rounded-lg bg-stone-200" />
-            <div className="h-7 w-3/5 rounded-lg bg-stone-200" />
-          </div>
-          <div className="min-h-[240px] flex-1 rounded-2xl bg-stone-200" />
-          <div className="flex items-center gap-3">
-            <span className="h-9 w-9 rounded-full bg-stone-200" />
-            <span className="h-2.5 w-28 rounded-full bg-stone-200" />
-          </div>
-          <div className="space-y-2">
-            {articleWidths.map((width) => (
-              <span
-                key={width}
-                className="block h-2.5 rounded-full bg-stone-200"
-                style={{ width: `${width}%` }}
-              />
-            ))}
-          </div>
-        </article>
-
-        <aside className="space-y-5 max-lg:hidden">
-          {[0, 1].map((card) => (
-            <div
-              key={card}
-              className="space-y-4 rounded-2xl border border-stone-200 bg-white/70 p-6"
-            >
-              <span className="block h-10 w-10 rounded-full bg-stone-200" />
-              <span className="block h-3 w-3/5 rounded-full bg-stone-200" />
-              <span className="block h-2.5 w-full rounded-full bg-stone-200" />
-              <span className="block h-2.5 w-4/5 rounded-full bg-stone-200" />
-              <span className="block h-8 w-24 rounded-lg bg-stone-200" />
-            </div>
-          ))}
-        </aside>
-      </div>
-
-      <output
-        aria-live="polite"
-        aria-atomic="true"
-        className="absolute left-1/2 top-[clamp(96px,13vh,122px)] w-[min(620px,calc(100%-40px))] -translate-x-1/2 rounded-[18px] border border-stone-200 bg-white/95 px-5 py-5 shadow-[0_18px_50px_rgb(24_24_27/9%)] backdrop-blur-sm"
-      >
-        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.09em] text-stone-500">
-          Building your site
-        </p>
-        <h1 className="text-xl font-semibold tracking-tight">
-          Your site is taking shape
-        </h1>
-        <p className="mt-1 text-sm text-stone-500">
-          Your first version will appear here automatically when it’s ready.
-        </p>
-      </output>
-    </main>
-  );
+  const [draft,setDraft]=useState<Draft>(empty),[step,setStep]=useState(0),[restored,setRestored]=useState(false),[ready,setReady]=useState(false),[canSave,setCanSave]=useState(true);
+  const [errors,setErrors]=useState<Record<string,string>>({}),[busy,setBusy]=useState(false),[result,setResult]=useState<Blueprint|null>(null),[notice,setNotice]=useState(''),[confirmReset,setConfirmReset]=useState(false);
+  const heading=useRef<HTMLHeadingElement>(null),resultHeading=useRef<HTMLHeadingElement>(null),dialog=useRef<HTMLDialogElement>(null),request=useRef<AbortController|null>(null),focusNext=useRef(false);
+  useEffect(()=>{
+    try {const raw=localStorage.getItem(storageKey),saved=raw?safeDraft(raw):null;if(saved){setDraft(saved);setRestored(true);}else if(raw)localStorage.removeItem(storageKey);}catch{setCanSave(false);}
+    setReady(true);return ()=>request.current?.abort();
+  },[]);
+  useEffect(()=>{if(!ready||!draft.goal)return;const timer=setTimeout(()=>{try{localStorage.setItem(storageKey,JSON.stringify({version:1,savedAt:Date.now(),draft}));}catch{setCanSave(false);}},300);return ()=>clearTimeout(timer);},[draft,ready]);
+  useEffect(()=>{if(focusNext.current){(result?resultHeading.current:heading.current)?.focus({preventScroll:true});focusNext.current=false;}},[step,result]);
+  useEffect(()=>{if(confirmReset)dialog.current?.showModal();else dialog.current?.close();},[confirmReset]);
+  function change<K extends keyof Draft>(key:K,value:Draft[K]){setDraft(d=>({...d,[key]:value}));setErrors({});setNotice('');}
+  function chooseGoal(goal:Goal){setDraft(d=>({...d,goal,features:d.goal===goal?d.features:[]}));setErrors({});}
+  function move(next:number){focusNext.current=true;setStep(next);setErrors({});setNotice('');}
+  function validate(){const e:Record<string,string>={};if(step===0&&!draft.goal)e.goal='Choose a goal, or select “I’m still figuring it out.”';if(step===1&&!draft.stage)e.stage='Choose your starting point.';if(step===1&&!draft.features.length)e.features='Choose at least one focus area.';setErrors(e);if(Object.keys(e).length)requestAnimationFrame(()=>document.querySelector<HTMLElement>('[aria-invalid="true"] input')?.focus());return !Object.keys(e).length;}
+  async function generate(){
+    if(busy)return;setBusy(true);setErrors({});const controller=new AbortController();request.current=controller;const timeout=setTimeout(()=>controller.abort(),12000);
+    try{const response=await fetch('/api/blueprint',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(draft),signal:controller.signal});const data=await response.json();if(!response.ok)throw new Error(data.error||'Something went wrong. Please try again.');if(!data.blueprint?.service||data.blueprint.version!=='1.0')throw new Error('The blueprint could not be read. Please try again.');focusNext.current=true;setResult(data.blueprint);setRestored(false);}
+    catch(err){setErrors({request:err instanceof Error&&err.name!=='AbortError'?err.message:'The connection took too long. Your answers are still here — please try again.'});}
+    finally{clearTimeout(timeout);request.current=null;setBusy(false);}
+  }
+  function reset(){request.current?.abort();setResult(null);setDraft(empty);setErrors({});setRestored(false);setConfirmReset(false);setNotice('Draft cleared. Start fresh whenever you’re ready.');focusNext.current=true;setStep(0);try{localStorage.removeItem(storageKey);}catch{}setTimeout(()=>heading.current?.focus({preventScroll:true}),50);}
+  function download(kind:'txt'|'json'){if(!result)return;const blob=new Blob([kind==='json'?JSON.stringify(result,null,2):formatBrief(result)],{type:kind==='json'?'application/json':'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`cynbit-project-blueprint.${kind}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);setNotice('Your brief is ready to download. It has not been sent to Cynbit.');}
+  async function copy(){try{await navigator.clipboard.writeText(formatBrief(result!));setNotice('Brief copied. Ready to share when you are.');}catch{setNotice('Clipboard access is unavailable. Download your brief instead.');}}
+  const goal=goals.find(g=>g.id===draft.goal),chosenFocus=draft.goal?scopes[draft.goal].filter(f=>draft.features.includes(f.id)):[];
+  const mailto=result?`mailto:opportunities@cynbit.in?subject=${encodeURIComponent('Project discovery — '+result.service)}&body=${encodeURIComponent('Hello Cynbit,\n\nI would like to discuss this project.\n\n'+formatBrief(result)+'\n\nMy name / company:\nBest way to reach me:\n')}`:'';
+  return <>
+    <a className="skip-link" href="#discovery">Skip to project discovery</a>
+    <header className="site-header"><div className="header-inner"><a href="https://www.cynbit.in/" aria-label="Cynbit home"><img src="/brand/cynbit.svg" alt="Cynbit" width="114" height="46"/></a><nav aria-label="Main navigation"><a href="https://www.cynbit.in/">Company</a><a href="https://www.cynbit.in/services">Expertise</a><a className="active" href="#discovery" aria-current="page">Project discovery</a></nav><a className="header-contact" href="https://www.cynbit.in/contact">Let’s talk <Icon name="arrow" size={16}/></a></div></header>
+    <main className="site-main" id="discovery">
+      <div className="breadcrumb"><a href="https://www.cynbit.in/">Home</a><span>/</span><span>Project discovery</span><span className="prototype-label">Assessment prototype</span></div>
+      <section className="intro" aria-labelledby="page-title"><div><span className="eyebrow"><span/> FROM IDEA TO DIRECTION</span><h1 id="page-title">A clearer brief.<br/><em>A better beginning.</em></h1><p>You bring the ambition. Let’s give it a starting point.<br className="desktop-break"/> Shape your idea into a practical project blueprint.</p></div><div className="intro-note"><span className="note-icon"><Icon name="compass" size={25}/></span><p>You don’t need all the answers.<br/><strong>Just a problem worth solving.</strong></p><div className="benefit-row"><span><Icon name="clock" size={14}/>3 short steps</span><span><Icon name="shield" size={14}/>No signup</span></div></div></section>
+      {restored&&!result&&<div className="restore-note" role="status"><span><Icon name="refresh" size={16}/>Welcome back. Your draft has been restored on this device.</span><button onClick={()=>setConfirmReset(true)}>Start fresh</button></div>}
+      <div className={`workspace ${result?'has-result':''}`}><section className="builder" aria-label="Project blueprint builder">
+        {!result?<>
+          <nav className="steps" aria-label="Discovery progress"><ol>{stepNames.map((name,index)=><li key={name} className={`${step===index?'current':''} ${step>index?'complete':''}`}><button type="button" disabled={index>step||busy} onClick={()=>move(index)} aria-current={step===index?'step':undefined}><span className="step-number">{step>index?<Icon name="check" size={14}/>:index+1}</span><span>{name}</span></button></li>)}</ol></nav>
+          <form noValidate onSubmit={e=>{e.preventDefault();if(validate()){if(step<2)move(step+1);else void generate();}}}><div className="form-content">
+            <div className="section-kicker"><span>STEP 0{step+1}</span><span>{['Start with the outcome','Make it your own','Set the boundaries'][step]}</span></div>
+            <h2 ref={heading} tabIndex={-1}>{['What would you like to achieve?','What does your project need?','What should we plan around?'][step]}</h2><p className="form-description">{['Choose the goal closest to what you have in mind.','A little context helps us suggest a useful starting point.','These are preferences, not commitments. “Not sure” is welcome.'][step]}</p>
+            {step===0&&<fieldset className="goal-field" aria-invalid={!!errors.goal} aria-describedby={errors.goal?'goal-error':undefined}><legend className="sr-only">Your primary goal</legend><div className="goal-grid">{goals.map(g=><label className={`goal-option ${draft.goal===g.id?'selected':''} ${g.id==='explore'?'wide':''}`} key={g.id}><input type="radio" name="goal" value={g.id} checked={draft.goal===g.id} onChange={()=>chooseGoal(g.id)}/><span className="option-icon"><Icon name={g.icon} size={23}/></span><span className="goal-text"><strong>{g.title}</strong><span>{g.description}</span></span><span className="radio-dot">{draft.goal===g.id&&<Icon name="check" size={12}/>}</span></label>)}</div>{errors.goal&&<p className="field-error" id="goal-error">{errors.goal}</p>}</fieldset>}
+            {step===1&&<div className="scope-form"><fieldset aria-invalid={!!errors.stage} aria-describedby={errors.stage?'stage-error':undefined}><legend>Your starting point</legend><div className="segmented">{stages.map(s=><label key={s.id} className={draft.stage===s.id?'selected':''}><input type="radio" name="stage" checked={draft.stage===s.id} onChange={()=>change('stage',s.id)}/><span className="mini-radio"/>{s.label}</label>)}</div>{errors.stage&&<p className="field-error" id="stage-error">{errors.stage}</p>}</fieldset>
+              <fieldset aria-invalid={!!errors.features} aria-describedby={errors.features?'features-error':'features-hint'}><legend>What should we focus on? <span>Choose one or more</span></legend><p className="sr-only" id="features-hint">Select at least one focus area.</p><div className="feature-grid">{draft.goal&&scopes[draft.goal].map(f=><label className={draft.features.includes(f.id)?'selected':''} key={f.id}><input type="checkbox" name="features" checked={draft.features.includes(f.id)} onChange={()=>change('features',draft.features.includes(f.id)?draft.features.filter(x=>x!==f.id):[...draft.features,f.id])}/><span className="checkbox">{draft.features.includes(f.id)&&<Icon name="check" size={13}/>}</span>{f.label}</label>)}</div>{errors.features&&<p className="field-error" id="features-error">{errors.features}</p>}</fieldset>
+              <div className="context-field"><label htmlFor="context">Anything else we should know? <span>Optional</span></label><textarea id="context" value={draft.context} onChange={e=>change('context',e.target.value)} maxLength={600} rows={3} placeholder="For example: Our team spends hours moving leads from email to our CRM." aria-describedby="context-hint"/><div className="input-help" id="context-hint"><span>Keep it high-level. Leave out personal or confidential details.</span><span>{draft.context.length}/600</span></div></div></div>}
+            {step===2&&<div className="priorities-form"><div className="select-field"><label htmlFor="budget">Your investment range <span>INR</span></label><div className="select-wrap"><select id="budget" value={draft.budget} onChange={e=>change('budget',e.target.value)}>{budgets.map(b=><option key={b.id} value={b.id}>{b.label}</option>)}</select><Icon name="chevron" size={18}/></div><p className="input-help">Helps frame the conversation. These are not Cynbit’s prices.</p></div><div className="select-field"><label htmlFor="timing">When would you like to start seeing results?</label><div className="select-wrap"><select id="timing" value={draft.timing} onChange={e=>change('timing',e.target.value)}>{timings.map(t=><option key={t.id} value={t.id}>{t.label}</option>)}</select><Icon name="chevron" size={18}/></div></div>
+              <div className="review-block"><div><Icon name="file" size={19}/><strong>A quick check before we build your brief</strong></div><dl><div><dt>Goal</dt><dd>{goal?.title}<button type="button" onClick={()=>move(0)} aria-label="Edit your goal"><Icon name="edit" size={14}/></button></dd></div><div><dt>Focus</dt><dd>{chosenFocus.map(f=>f.label).join(' · ')}<button type="button" onClick={()=>move(1)} aria-label="Edit your scope"><Icon name="edit" size={14}/></button></dd></div></dl></div><p className="privacy-note"><Icon name="shield" size={17}/><span>Your answers are processed to create this brief and aren’t stored on our server. A draft stays on this device for up to 7 days. Nothing is sent to Cynbit.</span></p></div>}
+            {errors.request&&<div className="request-error" role="alert"><Icon name="info" size={20}/><div><strong>Your brief hasn’t been generated yet.</strong><p>{errors.request}</p><span>You can retry or go back. Your answers are preserved.</span></div></div>}
+          </div><div className="form-footer"><div>{step>0?<button className="back-button" type="button" onClick={()=>move(step-1)} disabled={busy}><Icon name="back" size={16}/>Back</button>:<span className="small-muted">A good project starts with a good question.</span>}</div><button className="primary-button" type="submit" disabled={busy}>{busy?<><span className="spinner"/>Creating your blueprint…</>:<>{step<2?'Continue':'Create my blueprint'}<Icon name={step<2?'arrow':'spark'} size={18}/></>}</button></div></form>
+        </>:<div className="result-content"><div className="result-kicker"><span><Icon name="check" size={15}/>YOUR BLUEPRINT IS READY</span><button onClick={()=>{focusNext.current=true;setResult(null);setStep(2);setNotice('');}}><Icon name="edit" size={14}/>Edit answers</button></div><h2 ref={resultHeading} tabIndex={-1}>Here’s your starting point.</h2><p className="form-description">A practical direction, shaped around your priorities.</p>
+          <div className="recommendation"><span className="recommendation-icon"><Icon name={goal?.icon||'compass'} size={29}/></span><div><span className="overline">SUGGESTED SERVICE PATH</span><h3>{result.service}</h3><p>{result.rationale}</p></div></div>
+          <div className="result-approach"><h3>{result.approach}</h3><ol>{result.phases.map((p,i)=><li key={p.name}><span>{String(i+1).padStart(2,'0')}</span><div><h4>{p.name}</h4><p>{p.detail}</p></div></li>)}</ol></div>
+          <details className="result-details" open><summary>Decisions to make in discovery <Icon name="chevron" size={16}/></summary><ul>{result.questions.map(q=><li key={q}>{q}</li>)}</ul></details><details className="result-details"><summary>How to know the work is successful <Icon name="chevron" size={16}/></summary><ul>{result.acceptance.map(q=><li key={q}>{q}</li>)}</ul></details>
+          <div className="considerations"><Icon name="info" size={19}/><div><h4>Keep these assumptions in view</h4><ul>{result.considerations.map(c=><li key={c}>{c}</li>)}</ul></div></div>{result.context&&<div className="your-context"><h4>Your project context</h4><p>{result.context}</p></div>}
+          <div className="result-actions"><button className="primary-button" onClick={()=>download('txt')}><Icon name="download" size={18}/>Download brief</button><button className="secondary-button" onClick={()=>void copy()}><Icon name="copy" size={17}/>Copy</button><button className="secondary-button" onClick={()=>window.print()}><Icon name="print" size={17}/>Print / PDF</button><button className="text-button" onClick={()=>download('json')}>Export JSON</button></div><p className="result-footnote">Generated from published service categories and transparent planning rules. Review with Cynbit before making a commitment.</p></div>}
+      </section><aside className="blueprint-sidebar" aria-label="Your brief summary"><div className="preview-card"><div className="preview-top"><span><Icon name="file" size={15}/>PROJECT BLUEPRINT</span><span className="live-badge"><i/>{result?'Ready':'Live preview'}</span></div><BlueprintDrawing/><div className="preview-copy"><h2>{result?'Clarity. Before code.':'Your idea, taking shape.'}</h2><p>{result?'Keep your brief, share it with your team, and use it to start a focused conversation.':'A little direction now. A more productive conversation next.'}</p></div><dl className="preview-summary"><div><dt>YOUR GOAL</dt><dd className={!goal?'placeholder':''}>{goal?.title||'Let’s find your starting point'}</dd></div><div><dt>FOCUS AREAS</dt><dd>{chosenFocus.length?<div className="preview-tags">{chosenFocus.map(f=><span key={f.id}>{f.label}</span>)}</div>:<span className="placeholder">The details come next</span>}</dd></div>{step===2||result?<div><dt>PRIORITIES</dt><dd>{budgets.find(b=>b.id===draft.budget)?.label}<br/>{timings.find(t=>t.id===draft.timing)?.label}</dd></div>:null}</dl><div className="preview-footer"><span>{result?'READY FOR DISCOVERY':`${step} OF 3 STEPS COMPLETE`}</span><div className="preview-progress">{[0,1,2].map(i=><i className={result||step>i?'done':''} key={i}/>)}</div></div></div>
+        {result?<div className="handoff-card"><span className="note-icon"><Icon name="mail" size={22}/></span><h3>Let’s take it from here.</h3><p>Open an email with your brief included as text. Review it and add your contact details before sending.</p><a className="secondary-button" href={mailto}><Icon name="mail" size={17}/>Open email draft<Icon name="external" size={14}/></a><small>Nothing is sent automatically. No email app? Copy your brief and write to <a href="mailto:opportunities@cynbit.in">opportunities@cynbit.in</a>.</small></div>:<div className="included"><h3>A useful brief. Yours to keep.</h3>{['A recommended service path','A phased starting approach','Questions for a better first call','A brief you can download & share'].map(x=><p key={x}><Icon name="check" size={15}/>{x}</p>)}</div>}<div className="need-help"><Icon name="compass" size={20}/><p>Prefer a conversation?<a href="https://www.cynbit.in/contact">Talk to the Cynbit team <Icon name="arrow" size={13}/></a></p></div></aside></div>
+      <div className="workspace-note"><span><Icon name="shield" size={14}/>{canSave?'Your draft stays on this device. You’re in control.':'Browser storage is unavailable. Keep this tab open to retain your answers.'}</span><button onClick={()=>setConfirmReset(true)}>Clear draft <Icon name="refresh" size={12}/></button></div><div className="notice" role="status" aria-live="polite">{notice}</div>
+      <section className="next-section" aria-labelledby="next-title"><div><span className="overline">WHAT HAPPENS NEXT</span><h2 id="next-title">A thoughtful start.<br/>A focused conversation.</h2><p>This blueprint is the beginning of discovery,<br className="desktop-break"/> with you in control of the next step.</p></div><ol>{[['Shape your brief','Put your goals and priorities in one place.'],['Review it on your terms','Download it, discuss with your team, or adjust your answers.'],['Start the conversation','Share it with Cynbit to validate the scope and next steps.']].map(([title,description],i)=><li key={title}><span>0{i+1}</span><div><h3>{title}</h3><p>{description}</p></div></li>)}</ol></section>
+      <section className="faq" aria-labelledby="faq-title"><h2 id="faq-title">A few things you might be wondering.</h2>{[['Is this a quote or a delivery estimate?','No. The blueprint recommends a starting direction. Your budget and timing are preferences; scope, pricing, and availability need to be agreed with Cynbit.'],['Where do my answers go?','They are processed by the prototype server to generate the brief, without being stored there. A local draft lasts up to seven days on this browser. Use Clear draft to remove it sooner. Your brief is only shared when you choose to send it.'],['What if I don’t know what I need yet?','Choose “I’m still figuring it out.” We’ll suggest an opportunity-mapping conversation and useful questions, without prematurely prescribing a technology.']].map(([q,a])=><details key={q}><summary>{q}<Icon name="chevron" size={18}/></summary><p>{a}</p></details>)}</section>
+    </main><footer className="site-footer"><div><a href="https://www.cynbit.in/"><img src="/brand/cynbit.svg" alt="Cynbit" width="91" height="37"/></a><span>Engineered for optimism.</span></div><p>Independent assessment prototype · November 2026</p><a href="https://www.cynbit.in/">Visit Cynbit <Icon name="external" size={13}/></a></footer>
+    <dialog ref={dialog} onCancel={()=>setConfirmReset(false)} onClose={()=>setConfirmReset(false)} aria-labelledby="reset-title"><h2 id="reset-title">Start with a clean slate?</h2><p>This removes the draft from this browser and clears your current blueprint. Download your brief first if you want to keep it.</p><div><button className="secondary-button" autoFocus onClick={()=>setConfirmReset(false)}>Keep my draft</button><button className="primary-button" onClick={reset}>Clear draft</button></div></dialog><noscript><div className="noscript">The interactive blueprint needs JavaScript. You can still <a href="https://www.cynbit.in/contact">contact Cynbit directly</a>.</div></noscript>
+  </>;
 }
