@@ -201,7 +201,7 @@ fieldset {
   padding: 26px 0 0;
 }
 .breadcrumb > a {
-  color: #69797b;
+  color: #5d6c6e;
 }
 .prototype-label {
   margin-left: auto;
@@ -1268,6 +1268,8 @@ details[open] summary > svg {
   margin-top: 13px;
 }
 .handoff-card small a {
+  text-decoration:underline;
+  text-underline-offset:3px;
   color: var(--teal);
   overflow-wrap: anywhere;
 }
