@@ -2,7 +2,8 @@
 
 A focused improvement to Cynbit's discovery journey: turn a business goal into an explainable service recommendation and a useful project brief before asking for personal information.
 
-**Demo:** deployment URL will be recorded after verification.  
+**Live demo:** [cynbit-project-blueprint.furrymound.chatgpt.site](https://cynbit-project-blueprint.furrymound.chatgpt.site) - public, no sign-in required.
+
 **Technical report:** [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md)
 
 ## Run locally
@@ -35,6 +36,8 @@ npm run test:e2e
 ```
 
 The browser suite starts a preview automatically. With an existing server, it reuses port 4173. Set `TEST_BASE_URL` to test a different running origin. To use an already installed Chrome on Windows, set `$env:PLAYWRIGHT_CHANNEL='chrome'` before the browser command. CI installs Chromium and tests the production build.
+
+Verified on November 3, 2026 (IST): 17 domain/API tests and 15 browser tests passed. The same 15 browser tests also passed against the public production deployment (58.2 seconds, no retries). Native Wrangler preview could not start in this Windows sandbox because of an esbuild directory-access restriction; the hosted Worker was verified directly. GitHub Actions is configured but has not run on GitHub. See [test evidence](docs/evidence/hosted-test-summary.json) and [anonymous deployment smoke check](docs/evidence/deployment-smoke.json).
 
 `npm run format` formats authored application files. Test output is written to ignored `test-results/`. Tests cover all service paths, validation boundaries, API errors, draft recovery, keyboard controls, failure/retry, downloaded content, XSS escaping, responsive overflow, and automated accessibility checks.
 

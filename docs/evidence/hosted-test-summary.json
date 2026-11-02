@@ -1,0 +1,104 @@
+{
+  "environment": "Chrome; unauthenticated public production",
+  "baseURL": "https://cynbit-project-blueprint.furrymound.chatgpt.site",
+  "browser": {
+    "startTime": "2026-11-02T18:39:50.277Z",
+    "duration": 58151.176999999996,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "name": "degraded browser storage does not block the workflow",
+      "status": "expected",
+      "durationMs": 4478,
+      "attempts": 1
+    },
+    {
+      "name": "malformed successful responses are recoverable errors",
+      "status": "expected",
+      "durationMs": 2889,
+      "attempts": 1
+    },
+    {
+      "name": "print view includes scope, constraints, and unsent status",
+      "status": "expected",
+      "durationMs": 3382,
+      "attempts": 1
+    },
+    {
+      "name": "guards progression, retains selections, and moves keyboard focus",
+      "status": "expected",
+      "durationMs": 2715,
+      "attempts": 1
+    },
+    {
+      "name": "recovers a draft after refresh and clears stale features after changing goal",
+      "status": "expected",
+      "durationMs": 3604,
+      "attempts": 1
+    },
+    {
+      "name": "generates a real response and a complete downloadable brief",
+      "status": "expected",
+      "durationMs": 3371,
+      "attempts": 1
+    },
+    {
+      "name": "server failure keeps input and supports successful retry",
+      "status": "expected",
+      "durationMs": 2465,
+      "attempts": 1
+    },
+    {
+      "name": "clear draft requires confirmation and removes local data",
+      "status": "expected",
+      "durationMs": 2796,
+      "attempts": 1
+    },
+    {
+      "name": "untrusted context renders as text, never executable HTML",
+      "status": "expected",
+      "durationMs": 2923,
+      "attempts": 1
+    },
+    {
+      "name": "keyboard-only selection and native dialog focus work",
+      "status": "expected",
+      "durationMs": 1818,
+      "attempts": 1
+    },
+    {
+      "name": "responsive layout at 320px has no horizontal overflow",
+      "status": "expected",
+      "durationMs": 2810,
+      "attempts": 1
+    },
+    {
+      "name": "responsive layout at 390px has no horizontal overflow",
+      "status": "expected",
+      "durationMs": 2851,
+      "attempts": 1
+    },
+    {
+      "name": "responsive layout at 768px has no horizontal overflow",
+      "status": "expected",
+      "durationMs": 2883,
+      "attempts": 1
+    },
+    {
+      "name": "responsive layout at 1440px has no horizontal overflow",
+      "status": "expected",
+      "durationMs": 8400,
+      "attempts": 1
+    },
+    {
+      "name": "WCAG automated checks pass on every step and result",
+      "status": "expected",
+      "durationMs": 7335,
+      "attempts": 1
+    }
+  ]
+}

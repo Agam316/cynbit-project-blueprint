@@ -40,16 +40,17 @@ The client guards pre-hydration interaction, aborts requests after 12 seconds, i
 | --- | --- |
 | TypeScript | `npm run typecheck` passed. |
 | Domain/API tests | **17 passed**: five service paths, validation, conditional rules, exports, drafts, and HTTP error boundaries. |
-| Browser tests | **15 passed** in 52.6 seconds using local Chrome against the development server; no retries. |
+| Browser tests | **15 passed** in 52.6 seconds against the local development server; the same **15 passed against public production in 58.2 seconds**, using Chrome, with no retries. These are 32 unique automated tests including the domain/API suite. |
 | Accessibility | **0 axe violations** for the selected WCAG 2 A/AA and 2.1 AA rules across three steps and the result. Keyboard selection and focus also checked. This is not a full accessibility certification or screen-reader audit. |
 | Responsive layout | No horizontal overflow at **320, 390, 768, and 1440 px** on the entry and result views; desktop/mobile screenshots inspected. |
 | Production build | Sites/Vinext build completed successfully. |
+| Public deployment | Anonymous page and API requests returned **200**, API retained `no-store`, and the smoke run recorded **0 page errors / 0 failed requests**. |
 | Local API sample | **30 warm sequential requests: median 45.88 ms, p95 65.08 ms**, without throttling, against the development preview on this Windows machine. |
 | Emitted client assets | All emitted JS: **474,565 bytes raw / 139,844 bytes gzip**. CSS: **27,390 bytes raw / 6,282 bytes gzip**. Gzip figures sum independently compressed files, not observed browser transfer. |
 
-The browser suite also checks failed-request retry, malformed responses, blocked storage, draft refresh/reset, download contents, email-draft contents, XSS escaping, and print summary contents. See [test summary](evidence/test-summary.json), [measurement output](evidence/metrics.json), and [desktop](evidence/desktop.png), [mobile](evidence/mobile.png), and [result](evidence/result.png) captures. Run `node scripts/measure.mjs` with a server on port 4173 after building to reproduce the asset/API sample.
+The browser suite also checks failed-request retry, malformed responses, blocked storage, draft refresh/reset, download contents, email-draft contents, XSS escaping, and print summary contents. See [local tests](evidence/test-summary.json), [hosted tests](evidence/hosted-test-summary.json), [deployment smoke evidence](evidence/deployment-smoke.json), [measurement output](evidence/metrics.json), and [desktop](evidence/desktop.png), [mobile](evidence/mobile.png), and [hosted result](evidence/hosted-result.png) captures. Run `node scripts/measure.mjs` with a server on port 4173 after building to reproduce the asset/API sample.
 
-**Verification limits:** native esbuild directory traversal prevented the local Wrangler production preview from starting in the Windows sandbox. Local browser results therefore describe the development server. GitHub Actions is configured to build and test the production Worker on Ubuntu, but has not run on GitHub. No field performance, cold-start load test, original-site speed comparison, or conversion uplift is claimed.
+**Verification limits:** native esbuild directory traversal prevented the local Wrangler production preview from starting in the Windows sandbox; the public production Worker was subsequently verified directly. GitHub Actions is configured to build and test on Ubuntu, but has not run on GitHub. Browser coverage uses Chrome, not a cross-browser/device lab. No field performance, cold-start load test, original-site speed comparison, or conversion uplift is claimed.
 
 ## Business evaluation and integration
 
@@ -63,4 +64,4 @@ Cynbit should review the service rules and connect consent-based inquiry submiss
 
 Setup, API example, verification commands, and GitHub publication steps are in [README](../README.md). The source archive contains the project and evidence; the companion Git bundle preserves incremental commits. GitHub publication and assessment submission have not been performed.
 
-Deployment verification is being finalized; the verified URL and audience will be recorded here before handoff.
+**Live demo:** [https://cynbit-project-blueprint.furrymound.chatgpt.site](https://cynbit-project-blueprint.furrymound.chatgpt.site). Public access was enabled with the user's approval and verified without authentication on November 3, 2026 (IST). This is an independent assessment prototype; Cynbit's production site has not been modified.
